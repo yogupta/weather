@@ -27,35 +27,9 @@ class WeatherService:
                       f"&appid={api_key}&units=metric&lang={lang}"
         async with aiohttp.ClientSession() as session:
             async with session.get(weather_api) as response:
+                self.validate_response(response)
                 json = await response.json()
-                if response.status in (401, 403):
-                    raise exceptions.ErrorFetchingWeather(500,
-                                                          "Internal server error: Auth Error")  # don't show to user
-                if response.status == 404:
-                    raise exceptions.InvalidCityName(400, f"Invalid city name: {city}")
-                if response.status not in (200, 429):
-                    raise exceptions.ErrorFetchingWeather(500, f"Error fetching weather data please try again")
-
-                try:
-
-                    data = {
-                        "city": city,
-                        "description": json["weather"][0]["description"],
-                        "temperature": {
-                            "min": json["main"]["temp_min"],
-                            "max": json["main"]["temp_max"]
-                        },
-                        "humidity": json["main"]["humidity"],
-                        "pressure": json["main"]["pressure"],
-                        "wind": {
-                            "speed": json["wind"]["speed"],
-                            "direction": self.deg_to_compass(json["wind"]["deg"]),
-                            "degree": json["wind"]["deg"]
-                        }
-                    }
-                    return data
-                except Exception:
-                    raise exceptions.ErrorFetchingWeather(500, f"Parser error please try again")
+                return self.parse_json(json)
 
     @staticmethod
     def deg_to_compass(degree: float):
@@ -68,3 +42,34 @@ class WeatherService:
         if lang.lower() not in supported_languages:
             raise exceptions.InvalidLanguage(400,
                                              f"Invalid language {lang}; supported languages: {supported_languages}")
+
+    @staticmethod
+    def validate_response(response):
+        if response.status in (401, 403):
+            raise exceptions.ErrorFetchingWeather(500,
+                                                  "Internal server error: Auth Error")  # don't show to user
+        if response.status == 404:
+            raise exceptions.InvalidCityName(400, f"Invalid city name")
+        if response.status not in (200, 429):
+            raise exceptions.ErrorFetchingWeather(500, f"Error fetching weather data please try again")
+
+    def parse_json(self, json):
+        try:
+            data = {
+                "city": json["name"],
+                "description": json["weather"][0]["description"],
+                "temperature": {
+                    "min": json["main"]["temp_min"],
+                    "max": json["main"]["temp_max"]
+                },
+                "humidity": json["main"]["humidity"],
+                "pressure": json["main"]["pressure"],
+                "wind": {
+                    "speed": json["wind"]["speed"],
+                    "direction": self.deg_to_compass(json["wind"]["deg"]),
+                    "degree": json["wind"]["deg"]
+                }
+            }
+            return data
+        except Exception:
+            raise exceptions.ErrorFetchingWeather(500, f"Parser error please try again")
