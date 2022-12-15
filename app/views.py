@@ -16,7 +16,8 @@ async def index(request):
             service = weather_service.WeatherService()  # should be singleton
             data = json.loads(request.body)
             city = data["city"]
-            resp = await service.fetch(city)
+            lang = data.get("lang", "en")
+            resp = await service.fetch(city, lang)
             return HttpResponse(json.dumps(resp), content_type='application/json')
         except exceptions.InvalidLatLon as e:
             args = e.args
@@ -29,6 +30,11 @@ async def index(request):
             status_code = args[0]
             resp = HttpResponse(json.dumps({"error": msg}), content_type='application/json', status=status_code)
         except exceptions.InvalidCityName as e:
+            args = e.args
+            msg = args[1]
+            status_code = args[0]
+            resp = HttpResponse(json.dumps({"error": msg}), content_type='application/json', status=status_code)
+        except exceptions.InvalidLanguage as e:
             args = e.args
             msg = args[1]
             status_code = args[0]

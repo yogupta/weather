@@ -16,3 +16,10 @@ class ErrorFetchingWeather(Exception):
         self.msg = msg
         super().__init__(self.msg)
         self.status_code = status_code
+
+
+class InvalidLanguage(Exception):
+    def __int__(self, status_code, msg):
+        self.msg = msg
+        super().__init__(self.msg)
+        self.status_code = status_code
