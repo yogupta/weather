@@ -26,10 +26,20 @@ Supported languages:
 - Hindi (hi)
 
 example request:
-
+endpoint: `localhost:8000/app/`
 ```json lines
 {
   "city": "delhi",
   "lang": "en"//default lang is en
 }
+```
+
+Curl
+```curl
+curl --location --request POST 'http://localhost:8000/app/' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "city": "Delhi",
+    "lang": "en"
+}'
 ```
