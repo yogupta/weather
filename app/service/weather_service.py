@@ -3,7 +3,7 @@ import os
 
 import aiohttp
 from dotenv import load_dotenv, find_dotenv
-
+from cache import AsyncTTL
 from app.exceptions import exceptions
 
 
@@ -19,6 +19,7 @@ class WeatherService:
         except Exception:
             raise exceptions.ErrorFetchingWeather(500, f"Internal server error: Cannot fetch API Key")
 
+    @AsyncTTL(time_to_live=10, maxsize=1024)
     async def fetch(self, city: str, lang: str):
         self.validate_language(lang)
         api_key = self.get_api_key()

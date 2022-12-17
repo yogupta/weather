@@ -1,6 +1,6 @@
 aiohttp==3.8.3
+aioresponses==0.7.4
 asgiref==3.5.2
+async_cache==1.1.1
 Django==4.1.4
 python-dotenv==0.21.0
-
-aioresponses~=0.7.4
