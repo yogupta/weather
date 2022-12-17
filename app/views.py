@@ -1,8 +1,9 @@
 import json
 
+from asgiref.sync import async_to_sync
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from asgiref.sync import async_to_sync, sync_to_async
+
 from app.exceptions import exceptions
 from app.service import weather_service
 
@@ -19,11 +20,6 @@ async def index(request):
             lang = data.get("lang", "en")
             resp = await service.fetch(city, lang)
             return HttpResponse(json.dumps(resp), content_type='application/json')
-        except exceptions.InvalidLatLon as e:
-            args = e.args
-            msg = args[1]
-            status_code = args[0]
-            resp = HttpResponse(json.dumps({"error": msg}), content_type='application/json', status=status_code)
         except exceptions.ErrorFetchingWeather as e:
             args = e.args
             msg = args[1]

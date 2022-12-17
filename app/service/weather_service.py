@@ -26,7 +26,8 @@ class WeatherService:
         weather_api = f"https://api.openweathermap.org/data/2.5/weather?q={city}" \
                       f"&appid={api_key}&units=metric&lang={lang}"
         async with aiohttp.ClientSession() as session:
-            return self.download_weather_data(session, weather_api)
+            weather_data = await self.download_weather_data(session, weather_api)
+            return weather_data
 
     async def download_weather_data(self, session: aiohttp.ClientSession, url: str):
         async with session.get(url) as response:
