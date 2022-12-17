@@ -26,10 +26,13 @@ class WeatherService:
         weather_api = f"https://api.openweathermap.org/data/2.5/weather?q={city}" \
                       f"&appid={api_key}&units=metric&lang={lang}"
         async with aiohttp.ClientSession() as session:
-            async with session.get(weather_api) as response:
-                self.validate_response(response)
-                json = await response.json()
-                return self.parse_json(json)
+            return self.download_weather_data(session, weather_api)
+
+    async def download_weather_data(self, session: aiohttp.ClientSession, url: str):
+        async with session.get(url) as response:
+            self.validate_response(response)
+            json = await response.json()
+            return self.parse_json(json)
 
     @staticmethod
     def deg_to_compass(degree: float):
@@ -47,7 +50,7 @@ class WeatherService:
     def validate_response(response):
         if response.status in (401, 403):
             raise exceptions.ErrorFetchingWeather(500,
-                                                  "Internal server error: Auth Error")  # don't show to user
+                                                  "Internal server error: Auth Error")  # exposing app internals
         if response.status == 404:
             raise exceptions.InvalidCityName(400, f"Invalid city name")
         if response.status not in (200, 429):
@@ -72,4 +75,4 @@ class WeatherService:
             }
             return data
         except Exception:
-            raise exceptions.ErrorFetchingWeather(500, f"Parser error please try again")
+            raise exceptions.ErrorFetchingWeather(500, "Parser error please try again")

@@ -3,4 +3,4 @@ asgiref==3.5.2
 Django==4.1.4
 python-dotenv==0.21.0
 
-aiocache~=0.11.1
+aioresponses~=0.7.4
