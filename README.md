@@ -14,6 +14,7 @@
 ### Run with docker compose
 
 - ```commandline
+  docker-compose build
   docker-compose up
   docker-compose down
   ```
